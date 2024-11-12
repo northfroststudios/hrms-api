@@ -1,0 +1,20 @@
+{
+  "name": "hrms-api",
+  "version": "0.1.0",
+  "description": "API for HRMS",
+  "main": "src/server.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "express": "^4.21.1"
+  }
+}
