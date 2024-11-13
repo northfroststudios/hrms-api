@@ -3,7 +3,7 @@ import User from "../Models/user"
 
 export const registerUser = async (user: Partial<IUser>) => {
   const { firstname,lastname, email, password } = user
-  if (!firstname || lastname || !email || !password) {
+  if (!firstname || !lastname || !email || !password) {
     return {
       error: 'Please provide all the required fields',
     }
