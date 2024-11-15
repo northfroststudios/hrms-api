@@ -10,12 +10,14 @@ export interface IUser extends Document {
     lastname: string
     email: string
     password: string
-    tokens: { token: string }[]
+    resetPasswordToken?: string
+    resetPasswordExpires?: Date
+    
   }
 
   
   export interface IUserMethods {
-    generateAuthToken(): Promise<string>
+   
     toJSON(): IUser
   }
   
@@ -28,7 +30,9 @@ export interface IUser extends Document {
     lastname: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    tokens: [{ token: { type: String, required: true } }],
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    
   })
   
   userSchema.pre('save', async function (next) {
@@ -38,13 +42,7 @@ export interface IUser extends Document {
     next()
   })
   
-  userSchema.methods.generateAuthToken = async function () {
-    const user = this
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_KEY as string)
-    user.tokens = user.tokens.concat({ token })
-    await user.save()
-    return token
-  }
+
 
   userSchema.methods.toJSON = function () {
     const user = this as IUser

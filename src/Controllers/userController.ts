@@ -1,6 +1,6 @@
 import { IUser } from "../Models/user";
 import User from "../Models/user";
-import { RegisterUserSchema } from "../Schemas/authSchema";
+import { LoginUserSchema, RegisterUserSchema } from "../Schemas/authSchema";
 
 export const registerUser = async (user: Partial<IUser>) => {
   const { firstname, lastname, email, password } = user;
@@ -23,27 +23,35 @@ export const registerUser = async (user: Partial<IUser>) => {
 
   const newUser = new User({ firstname, lastname, email, password });
   await newUser.save();
-  const token = await newUser.generateAuthToken();
+  
   return {
     user: newUser,
-    token,
+   
   };
 };
 
 export const loginUser = async (user: Partial<IUser>) => {
   const { email, password } = user;
-  if (!email || !password) {
+
+  const result = LoginUserSchema.safeParse(user);
+  if (!result.success) {
     return {
-      error: "Please provide all the required fields",
+      field_errors: result.error.errors.map((err) => ({
+        field: err.path[0],
+        message: err.message,
+      })),
     };
   }
-  const existingUser = await User.findByCredentials(email, password);
-  if (!existingUser) {
-    return null;
+
+  const existingUser = await User.findByCredentials(email as string, password as string);
+  if (existingUser) {
+    return{
+      error: "User already exists"
+    };
   }
-  const token = await existingUser.generateAuthToken();
+  
   return {
     user: existingUser,
-    token,
+    
   };
 };
