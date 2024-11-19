@@ -35,13 +35,14 @@ router.post('/forgot-password', async (req: Request<{},{},ForgotPasswordRequest>
     user.resetPasswordExpires = new Date(Date.now() + 300000); //5 minutes
     await user.save();
 
-    const resetURL = `http://localhost:3000/reset-password/${token}`;
+    const resetURL = `http://localhost:3000/api/auth/reset-password/${token}`;
 
-    await sendMail(email, 'Password Reset', `You requested a password reset. Click the link to reset your password: ${resetURL}`);
+    await sendMail(email, 'Password Reset', `You requested a password reset. Click the link to reset your password: ${resetURL}. It expires on ${user.resetPasswordExpires}`);
 
     res.status(200).send('Password reset email sent');
   } catch (error) {
     res.status(500).send('Server error');
+    console.log(error)
   }
 });
 

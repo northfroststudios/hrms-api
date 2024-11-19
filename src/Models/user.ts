@@ -33,6 +33,7 @@ export interface IUser extends Document {
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     
+    
   })
   
   userSchema.pre('save', async function (next) {

@@ -1,5 +1,6 @@
 import { IUser } from "../Models/user";
 import User from "../Models/user";
+import jwt from "jsonwebtoken"
 import { LoginUserSchema, RegisterUserSchema } from "../Schemas/authSchema";
 
 export const registerUser = async (user: Partial<IUser>) => {
@@ -23,7 +24,8 @@ export const registerUser = async (user: Partial<IUser>) => {
 
   const newUser = new User({ firstname, lastname, email, password });
   await newUser.save();
-  
+
+ 
   return {
     user: newUser,
    
@@ -44,14 +46,38 @@ export const loginUser = async (user: Partial<IUser>) => {
   }
 
   const existingUser = await User.findByCredentials(email as string, password as string);
-  if (existingUser) {
+  if (!existingUser) {
     return{
-      error: "User already exists"
+      error: "No account exists with the provided credentials"
     };
   }
+
+   const accesstoken = jwt.sign({
+    existingUser:{
+      firstname: existingUser.firstname,
+      email: existingUser.email,
+      id: existingUser.id
+    },
+  },
+  process.env.JWT_SECRET as string ,
+  {expiresIn: "30000"}
+ );
   
+  const refreshtoken = jwt.sign({
+    existingUser:{
+      firstname: existingUser.firstname,
+      email: existingUser.email,
+      id: existingUser.id
+    },
+  },
+  process.env.JWT_SECRET as string ,
+  {expiresIn: "60000"}
+  );
+
   return {
     user: existingUser,
+    accesstoken,
+    refreshtoken
     
   };
 };
