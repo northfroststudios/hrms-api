@@ -31,13 +31,13 @@ router.post('/forgot-password', async (req: Request<{},{},ForgotPasswordRequest>
     }
 
     const token = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = new Date(Date.now() + 300000); //5 minutes
+    user.authToken = token;
+    user.authTokenExpires = new Date(Date.now() + 300000); //5 minutes
     await user.save();
 
     const resetURL = `http://localhost:3000/api/auth/reset-password/${token}`;
 
-    await sendMail(email, 'Password Reset', `You requested a password reset. Click the link to reset your password: ${resetURL}. It expires on ${user.resetPasswordExpires}`);
+    await sendMail(email, 'Password Reset', `You requested a password reset. Click the link to reset your password: ${resetURL}. It expires on ${user.authTokenExpires}`);
 
     res.status(200).send('Password reset email sent');
   } catch (error) {
@@ -53,8 +53,8 @@ router.post('/reset-password/:token', async (req: Request<ResetParams,{},ResetPa
   try{
     const user = await User.findOne({
       email,
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: new Date() }
+      authToken: token,
+      authTokenExpires: { $gt: new Date() }
     });
     if(!user){
       return res.status(400).json({message:"Invalid or expired password reset token"});
@@ -64,8 +64,8 @@ router.post('/reset-password/:token', async (req: Request<ResetParams,{},ResetPa
 
     // Update user's password and clear reset token fields
     user.password = hashedPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
+    user.authToken = undefined;
+    user.authTokenExpires = undefined;
     await user.save();
 
     return res.status(200).json({

@@ -10,9 +10,9 @@ export interface IUser extends Document {
     lastname: string
     email: string
     password: string
-    resetPasswordToken?: string
-    resetPasswordExpires?: Date
-    
+    authToken?: string
+    authTokenExpires?: Date
+    isActive: Boolean
   }
 
   
@@ -30,9 +30,12 @@ export interface IUser extends Document {
     lastname: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date },
-    
+    authToken: { type: String },
+    authTokenExpires: { type: Date },
+    isActive: {
+      type: Boolean,
+      default: false
+    },
     
   })
   
