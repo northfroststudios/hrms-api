@@ -4,7 +4,6 @@ import User, { IUser } from '../Models/user'
 
 export interface CustomRequest extends Request {
   user?: IUser
-  token?: string
 }
 
 interface DecodedToken {
@@ -15,7 +14,8 @@ const auth = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '')
     if (!token) {
-      throw new Error('Authentication failed. Token missing.')
+     res.status(401).json({message: "Authentication failed"})
+     return;
     }
 
     const decoded = jwt.verify(token, process.env.JWT_KEY as string) as DecodedToken
@@ -25,14 +25,15 @@ const auth = async (req: CustomRequest, res: Response, next: NextFunction) => {
     })
 
     if (!user) {
-      throw new Error('Authentication failed. User not found.')
+      res.status(401).json({message: "Authentication failed"})
+      return;
     }
 
     req.user = user
-    req.token = token
+    
     next()
   } catch (error) {
-    res.status(401).send({ error: 'Authentication failed.' })
+    res.status(401).send({ error: 'Authentication failed' })
   }
 }
 
